@@ -37,7 +37,7 @@ if __name__ == '__main__':
     # all_names = {}
     while True:
         # # Get people names
-        all_names = [(t.text, t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a[contains(@class, 'denomination-links')]") if lastname in t.text.split()[0].lower()]
+        all_names = [(t.get_attribute("title"), t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a[contains(@class, 'denomination-links')]") if lastname in t.get_attribute("title").split()[0].lower()]
         print(len(all_names))
         print(all_names[:5])
 
