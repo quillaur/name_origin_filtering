@@ -73,12 +73,25 @@ if __name__ == '__main__':
     driver.get("https://www.118712.fr/")
     time.sleep(0.5)
     driver.find_element_by_id("didomi-notice-agree-button").click()
-    driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
+    # driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
+    driver.find_element_by_id("search_input_mono").send_keys(f"rue de Sotteville, 76100 ROUEN")
     driver.find_element_by_id("search_validation_normal").click()
 
     # driver.find_element_by_id("propart-button").click()
     # driver.find_element_by_id("ui-id-3").click()
 
-    all_names = [(t.get_attribute("title"), t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a[contains(@id, 'result')]") if t.is_displayed() and lastname in t.get_attribute("title").split()[0].lower()]
-    print(all_names)
+    while True:
+        try: 
+            driver.find_element_by_xpath("//*[@id='more']").click()
+            # time.sleep(1)
+        except exceptions.NoSuchElementException as e:
+            break
+        except exceptions.ElementNotInteractableException as e:
+            break
+
+    all_names = [(t.get_attribute("title"), t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a[contains(@id, 'result')]")]
+    # all_names = [(t.get_attribute("title"), t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a") if t.is_displayed() and lastname in t.get_attribute("title").split()[0].lower()]
+    print(len(all_names))
+    print(all_names)        
+
     driver.quit()

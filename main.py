@@ -60,10 +60,18 @@ if __name__ == '__main__':
             driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
             driver.find_element_by_id("search_validation_normal").click()
 
+            while True:
+                try: 
+                    driver.find_element_by_xpath("//*[@id='more']").click()
+                except exceptions.NoSuchElementException as e:
+                    break
+                except exceptions.ElementNotInteractableException as e:
+                    break
+
             for elem in driver.find_elements_by_xpath("//a[contains(@id, 'result')]"):
                 person_name = elem.get_attribute("title")
                 lower_name = person_name.lower()
-                if elem.is_displayed() and lastname in lower_name.split()[0]:
+                if lastname in lower_name.split()[0]:
                     if lower_name in all_names.keys():
                         all_names[lower_name]["URL 118712"] = make_clickable(elem.get_attribute("href"), "here")
                     else:
