@@ -44,8 +44,9 @@ if __name__ == '__main__':
                     if lastname in lower_name.split()[0]:
                         all_names[lower_name] = {
                             "Name": person_name,
-                            "URL Pages Blanches": make_clickable(elem.get_attribute("href"), "here"),
-                            "URL 118712": None
+                            "URL Pages Blanches": make_clickable(elem.get_attribute("href"), "Yes"),
+                            "URL 118712": "No",
+                            "URL forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_name.split()[0]}", "Yes")
                         }
 
                 try: 
@@ -73,15 +74,14 @@ if __name__ == '__main__':
                 lower_name = person_name.lower()
                 if lastname in lower_name.split()[0]:
                     if lower_name in all_names.keys():
-                        all_names[lower_name]["URL 118712"] = make_clickable(elem.get_attribute("href"), "here")
+                        all_names[lower_name]["URL 118712"] = make_clickable(elem.get_attribute("href"), "Yes")
                     else:
                         all_names[lower_name] = {
                             "Name": person_name,
-                            "URL Pages Blanches": None,
-                            "URL 118712": make_clickable(elem.get_attribute("href"), "here")
-                        }
-
-
+                            "URL Pages Blanches": "No",
+                            "URL 118712": make_clickable(elem.get_attribute("href"), "Yes"),
+                            "URL forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_name.split()[0]}", "Yes")
+                        }            
 
             driver.quit()
 
