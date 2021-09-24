@@ -16,20 +16,36 @@ from docopt import docopt
 
 
 def search_white_pages(lastname: str, driver: webdriver) -> list:
+    """Search white pages website for/with the given parameters.
+
+    Args:
+        lastname (str): The lastname to search for. 
+        driver (webdriver): The selenium webdriver to use to automate the search.
+
+    Returns:
+        list: The list of names, addresses and URLs that matched the searched lastname.
+    """
     driver.get("https://www.pagesjaunes.fr/pagesblanches")
     driver.find_element_by_id("didomi-notice-agree-button").click()
     driver.find_element_by_id("ou").send_keys("Seine-Maritime (76)")
     driver.find_element_by_id("quoiqui").send_keys(lastname)
     driver.find_element_by_xpath("//button[@title='Trouver']").click()
 
+    # Give time for the page to load.
     time.sleep(0.5)
 
+    # Store results in list
     all_names = []
+
+    # Search as long as possible
     while True:
+        # For all elem of the list of search result on this page
         for indi in driver.find_elements_by_xpath("//li"):
+            # Try to find a name (in a 'a' tag)
             try:
                 name_elem = indi.find_element_by_xpath(".//a[contains(@class, 'denomination')]")
             except exceptions.NoSuchElementException:
+                # Go to the next element
                 continue
             
             fullname = name_elem.get_attribute("title")
@@ -37,8 +53,10 @@ def search_white_pages(lastname: str, driver: webdriver) -> list:
             adress_elem = indi.find_element_by_xpath(".//a[contains(@title, 'Voir le plan')]")
 
             if lastname in fullname.lower():
+                # Store match in a tuple: (full name, address, URL) and append to the final resulting list
                 all_names.append((fullname, adress_elem.text.split("\n")[0], name_elem.get_attribute("href")))
 
+        # If you can't find/click the 'next' button, then break the while loop/search.
         try: 
             driver.find_element_by_xpath("//*[@id='pagination-next']").click()
             time.sleep(0.5)
