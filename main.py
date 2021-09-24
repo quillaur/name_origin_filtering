@@ -52,6 +52,8 @@ if __name__ == '__main__':
         submitted = st.form_submit_button("Ok")
 
 
+    st.write("Cette application permet de faire une recherche d'un nom de famille sur 118712 et les pages blanches pour un département donnée.")
+    
     if submitted:
         # Initiat the search and run a spinner while the search happens.
         with st.spinner(text=f"Search for the lastname '{lastname}' in progress..."):
