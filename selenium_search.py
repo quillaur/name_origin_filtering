@@ -14,6 +14,69 @@ import time
 from docopt import docopt
 
 
+
+def search_white_pages(lastname: str, driver: webdriver) -> list:
+    driver.get("https://www.pagesjaunes.fr/pagesblanches")
+    driver.find_element_by_id("didomi-notice-agree-button").click()
+    driver.find_element_by_id("ou").send_keys("Seine-Maritime (76)")
+    driver.find_element_by_id("quoiqui").send_keys(lastname)
+    driver.find_element_by_xpath("//button[@title='Trouver']").click()
+
+    time.sleep(0.5)
+
+    all_names = []
+    while True:
+        for indi in driver.find_elements_by_xpath("//li"):
+            try:
+                name_elem = indi.find_element_by_xpath(".//a[contains(@class, 'denomination')]")
+            except exceptions.NoSuchElementException:
+                continue
+            
+            fullname = name_elem.get_attribute("title")
+
+            adress_elem = indi.find_element_by_xpath(".//a[contains(@title, 'Voir le plan')]")
+
+            if lastname in fullname.lower():
+                all_names.append((fullname, adress_elem.text.split("\n")[0], name_elem.get_attribute("href")))
+
+        try: 
+            driver.find_element_by_xpath("//*[@id='pagination-next']").click()
+            time.sleep(0.5)
+        except exceptions.NoSuchElementException as e:
+            break
+
+    return all_names
+
+
+def search_118712(lastname: str, driver: webdriver) -> list:
+    driver.get("https://www.118712.fr/")
+    time.sleep(0.5)
+    driver.find_element_by_id("didomi-notice-agree-button").click()
+    driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
+    driver.find_element_by_id("search_validation_normal").click()
+
+    while True:
+        try: 
+            driver.find_element_by_xpath("//*[@id='more']").click()
+        except exceptions.NoSuchElementException as e:
+            break
+        except exceptions.ElementNotInteractableException as e:
+            break
+
+    all_names = []
+    for indi in driver.find_elements_by_xpath("//article"):
+        name_elem = indi.find_element_by_xpath(".//a[contains(@id, 'result')]")
+        fullname = name_elem.get_attribute("title")
+
+        adress_elem = indi.find_element_by_xpath(".//div[@class='address']")
+
+        if lastname in fullname.lower():
+            all_names.append((fullname, adress_elem.text, name_elem.get_attribute("href")))
+
+    return all_names
+
+
+
 if __name__ == '__main__':
     ###################
     #### Arguments ####
@@ -26,56 +89,24 @@ if __name__ == '__main__':
     fp = webdriver.FirefoxProfile()
     driver = webdriver.Firefox(firefox_profile=fp)
     
-    driver.get("https://www.pagesjaunes.fr/pagesblanches")
-    driver.find_element_by_id("didomi-notice-agree-button").click()
-    driver.find_element_by_id("ou").send_keys("Seine-Maritime (76)")
-    driver.find_element_by_id("quoiqui").send_keys(lastname)
-    driver.find_element_by_xpath("//button[@title='Trouver']").click()
+    all_names = search_white_pages(lastname, driver)
+    # all_names = search_118712(lastname, driver)   
 
-    time.sleep(1)
+    print(len(all_names))
+    print(all_names) 
 
-    # all_names = {}
-    while True:
-        # # Get people names
-        all_names = [(t.get_attribute("title"), t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a[contains(@class, 'denomination')]") if lastname in t.get_attribute("title").split()[0].lower()]
-        print(len(all_names))
-        print(all_names)
+    for n in all_names:
+        name = n[0].split()
+        l = name[0]
+        f = " ".join(name[1:])
+        address = n[1].split(",")
+        zip_city = address[-1].strip()
+        street = address[-2].strip()
+        street = street.split()[-1]
+        print(f"lastname: {l}, firstname: {f}, street: {street}, zip_city: {zip_city}")
+        id_address = f"{n[0]} {street} {zip_city}"
+        print(id_address)
 
-        # # Get adresses
-        all_adresses = [t.text.split("\n")[0] for t in driver.find_elements_by_xpath("//a[contains(@title, 'Voir le plan')]")]
-        print(len(all_adresses))
-        print(all_adresses)
-
-        try: 
-            driver.find_element_by_xpath("//*[@id='pagination-next']").click()
-            time.sleep(1)
-        except exceptions.NoSuchElementException as e:
-            break
-
-
-    # driver.get("https://www.118712.fr/")
-    # time.sleep(0.5)
-    # driver.find_element_by_id("didomi-notice-agree-button").click()
-    # # driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
-    # driver.find_element_by_id("search_input_mono").send_keys(f"rue de Sotteville, 76100 ROUEN")
-    # driver.find_element_by_id("search_validation_normal").click()
-
-    # # driver.find_element_by_id("propart-button").click()
-    # # driver.find_element_by_id("ui-id-3").click()
-
-    # while True:
-    #     try: 
-    #         driver.find_element_by_xpath("//*[@id='more']").click()
-    #         # time.sleep(1)
-    #     except exceptions.NoSuchElementException as e:
-    #         break
-    #     except exceptions.ElementNotInteractableException as e:
-    #         break
-
-    # all_names = [(t.get_attribute("title"), t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a[contains(@id, 'result')]")]
-    # # all_names = [(t.get_attribute("title"), t.get_attribute("href")) for t in driver.find_elements_by_xpath("//a") if t.is_displayed() and lastname in t.get_attribute("title").split()[0].lower()]
-    # print(len(all_names))
-    # print(all_names)        
 
 
     # driver.get("https://forebears.io/fr/surnames")

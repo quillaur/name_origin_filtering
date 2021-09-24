@@ -5,9 +5,21 @@ from selenium.webdriver.firefox.options import Options
 import time
 import pandas as pd
 
+from selenium_search import search_white_pages, search_118712
+
 
 def make_clickable(url, text):
     return f'<a target="_blank" href="{url}">{text}</a>'
+
+def create_id_from_name_address(fullname: str, address: str) -> str:
+    if "," in address:
+        address = address.split(",")
+        zip_city = address[-1].strip()
+        street = address[-2].strip()
+        street = street.split()[-1]
+        return f"{fullname.strip()} {street} {zip_city}"
+    else:
+        return f"{fullname.strip()} {address}"
 
 
 if __name__ == '__main__':
@@ -22,66 +34,42 @@ if __name__ == '__main__':
         with st.spinner(text=f"Search for the lastname '{lastname}' in progress..."):
             lastname = lastname.lower()
 
-            all_names = {}
-
             # Set driver
             fp = webdriver.FirefoxProfile()
             options = Options()
             options.headless = True
             driver = webdriver.Firefox(firefox_profile=fp, options=options)
 
-            driver.get("https://www.pagesjaunes.fr/pagesblanches")
-            driver.find_element_by_id("didomi-notice-agree-button").click()
-            driver.find_element_by_id("ou").send_keys("Seine-Maritime (76)")
-            driver.find_element_by_id("quoiqui").send_keys(lastname)
-            driver.find_element_by_xpath("//button[@title='Trouver']").click()
+            wp_names = search_white_pages(lastname, driver)
 
-            while True:
-                # Get people names                
-                for elem in driver.find_elements_by_xpath("//a[contains(@class, 'denomination')]"):
-                    person_name = elem.get_attribute("title")
-                    lower_name = person_name.lower()
-                    if lastname in lower_name.split()[0]:
-                        all_names[lower_name] = {
-                            "Name": person_name,
-                            "URL Pages Blanches": make_clickable(elem.get_attribute("href"), "Yes"),
-                            "URL 118712": "No",
-                            "URL forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_name.split()[0]}", "Yes")
-                        }
+            other_names = search_118712(lastname, driver)
 
-                try: 
-                    driver.find_element_by_xpath("//*[@id='pagination-next']").click()
-                except exceptions.NoSuchElementException as e:
-                    break
+            all_names = {}
 
+            for info in wp_names:
+                lower_fullname = info[0].lower()
+                id_name_address = create_id_from_name_address(lower_fullname, info[1].lower())
+                
+                all_names[id_name_address] = {
+                    "Name": info[0],
+                    "Pages Blanches": make_clickable(info[2], "Yes"),
+                    "118712": "No",
+                    "Forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_fullname.split()[0]}", "Yes")
+                }
 
-            driver.get("https://www.118712.fr/")
-            time.sleep(0.5)
-            driver.find_element_by_id("didomi-notice-agree-button").click()
-            driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
-            driver.find_element_by_id("search_validation_normal").click()
-
-            while True:
-                try: 
-                    driver.find_element_by_xpath("//*[@id='more']").click()
-                except exceptions.NoSuchElementException as e:
-                    break
-                except exceptions.ElementNotInteractableException as e:
-                    break
-
-            for elem in driver.find_elements_by_xpath("//a[contains(@id, 'result')]"):
-                person_name = elem.get_attribute("title")
-                lower_name = person_name.lower()
-                if lastname in lower_name.split()[0]:
-                    if lower_name in all_names.keys():
-                        all_names[lower_name]["URL 118712"] = make_clickable(elem.get_attribute("href"), "Yes")
-                    else:
-                        all_names[lower_name] = {
-                            "Name": person_name,
-                            "URL Pages Blanches": "No",
-                            "URL 118712": make_clickable(elem.get_attribute("href"), "Yes"),
-                            "URL forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_name.split()[0]}", "Yes")
-                        }            
+            for info in other_names:
+                lower_fullname = info[0].lower()
+                id_name_address = create_id_from_name_address(lower_fullname, info[1].lower())
+                
+                if id_name_address in all_names.keys():
+                    all_names[id_name_address]["118712"] = make_clickable(info[2], "Yes")
+                else:
+                    all_names[id_name_address] = {
+                    "Name": info[0],
+                    "Pages Blanches": "No",
+                    "118712": make_clickable(info[2], "Yes"),
+                    "Forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_fullname.split()[0]}", "Yes")
+                }      
 
             driver.quit()
 
