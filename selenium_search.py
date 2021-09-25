@@ -50,7 +50,11 @@ def search_white_pages(lastname: str, driver: webdriver) -> list:
             
             fullname = name_elem.get_attribute("title")
 
-            adress_elem = indi.find_element_by_xpath(".//a[contains(@title, 'Voir le plan')]")
+            try:
+                adress_elem = indi.find_element_by_xpath(".//a[contains(@title, 'Voir le plan')]")
+            except exceptions.NoSuchElementException:
+                # Go to the next element
+                continue
 
             if lastname in fullname.lower():
                 # Store match in a tuple: (full name, address, URL) and append to the final resulting list
@@ -107,13 +111,17 @@ if __name__ == '__main__':
     fp = webdriver.FirefoxProfile()
     driver = webdriver.Firefox(firefox_profile=fp)
     
-    all_names = search_white_pages(lastname, driver)
-    # all_names = search_118712(lastname, driver)   
+    # Search the white pages website
+    wp_names = search_white_pages(lastname, driver)
+    print(len(wp_names))
+    print(wp_names)
 
-    print(len(all_names))
-    print(all_names) 
+    # Search the 118712 website
+    other_names = search_118712(lastname, driver)
+    print(len(other_names))
+    print(other_names)
 
-    for n in all_names:
+    for n in wp_names:
         name = n[0].split()
         l = name[0]
         f = " ".join(name[1:])
