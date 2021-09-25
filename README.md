@@ -6,4 +6,4 @@ L'application est disponible à cette adresse: https://share.streamlit.io/quilla
 
 Un match entre le nom de famille donnée en input et les noms dans les annuaires est fait de la façon suivante:
 - input = "Quillet" 
-- matches = "Quillet Aurélien" / "Aurélien Quillet" / "Albert, Aurélien Quillet" / "Albert Quillet Aurélien"
+- matches = "Quillet Aurélien" / "Aurélien Quillet" / "Albert, Aurélien Quillet" / "Albert Quillet Aurélien" / "Quillet-Albert-Aurélien"

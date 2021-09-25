@@ -15,7 +15,7 @@ from docopt import docopt
 
 
 
-def search_white_pages(lastname: str, driver: webdriver) -> list:
+def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
     """Search white pages website for/with the given parameters.
 
     Args:
@@ -29,7 +29,8 @@ def search_white_pages(lastname: str, driver: webdriver) -> list:
     time.sleep(1)
     driver.find_element_by_id("didomi-notice-agree-button").click()
     time.sleep(1)
-    driver.find_element_by_id("ou").send_keys("Seine-Maritime (76)")
+    # Seine-Maritime (76)
+    driver.find_element_by_id("ou").send_keys(address)
     driver.find_element_by_id("quoiqui").send_keys(lastname)
     driver.find_element_by_xpath("//button[@title='Trouver']").click()
 
@@ -72,12 +73,12 @@ def search_white_pages(lastname: str, driver: webdriver) -> list:
     return all_names
 
 
-def search_118712(lastname: str, driver: webdriver) -> list:
+def search_118712(lastname: str, address: str, driver: webdriver) -> list:
     driver.get("https://www.118712.fr/")
     time.sleep(1)
     driver.find_element_by_id("didomi-notice-agree-button").click()
     time.sleep(1)
-    driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
+    driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, {address}")
     driver.find_element_by_id("search_validation_normal").click()
     time.sleep(1)
 
@@ -114,14 +115,16 @@ if __name__ == '__main__':
 
     fp = webdriver.FirefoxProfile()
     driver = webdriver.Firefox(firefox_profile=fp)
+
+    address = "Seine-Maritime (76)"
     
     # Search the white pages website
-    wp_names = search_white_pages(lastname, driver)
+    wp_names = search_white_pages(lastname, address, driver)
     print(len(wp_names))
     print(wp_names)
 
     # Search the 118712 website
-    other_names = search_118712(lastname, driver)
+    other_names = search_118712(lastname, address, driver)
     print(len(other_names))
     print(other_names)
 
