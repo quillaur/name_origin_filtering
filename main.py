@@ -61,7 +61,7 @@ if __name__ == '__main__':
             fp = webdriver.FirefoxProfile()
             options = Options()
             options.headless = True
-            driver = webdriver.Firefox(firefox_profile=fp, options=options, executable_path="/home/appuser/.conda/bin/geckodriver")
+            driver = webdriver.Firefox(firefox_profile=fp, options=options, executable_path="/home/appuser/.conda/bin/geckodriver",)
 
             # Search the white pages website
             wp_names = search_white_pages(lastname, driver)
