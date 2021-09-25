@@ -4,6 +4,7 @@ from selenium.common import exceptions
 from selenium.webdriver.firefox.options import Options
 import time
 import pandas as pd
+import geckodriver_autoinstaller
 
 from selenium_search import search_white_pages, search_118712
 
@@ -58,16 +59,21 @@ if __name__ == '__main__':
         # Initiat the search and run a spinner while the search happens.
         with st.spinner(text=f"Search for the lastname '{lastname}' in progress..."):
             # Set driver
+            geckodriver_autoinstaller.install()
             fp = webdriver.FirefoxProfile()
             options = Options()
             options.headless = True
-            driver = webdriver.Firefox(firefox_profile=fp, options=options, executable_path="/home/appuser/.conda/bin/geckodriver",)
+
+            # driver = webdriver.Firefox(firefox_profile=fp, options=options, executable_path="/home/appuser/.conda/bin/geckodriver",)
+            driver = webdriver.Firefox(firefox_profile=fp, options=options)
 
             # Search the white pages website
             wp_names = search_white_pages(lastname, driver)
+            # print(len(wp_names))
 
             # Search the 118712 website
             other_names = search_118712(lastname, driver)
+            # print(len(other_names))
 
             # Store all data in a dict
             all_names = {}
