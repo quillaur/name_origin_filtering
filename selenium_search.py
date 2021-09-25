@@ -26,13 +26,15 @@ def search_white_pages(lastname: str, driver: webdriver) -> list:
         list: The list of names, addresses and URLs that matched the searched lastname.
     """
     driver.get("https://www.pagesjaunes.fr/pagesblanches")
+    time.sleep(1)
     driver.find_element_by_id("didomi-notice-agree-button").click()
+    time.sleep(1)
     driver.find_element_by_id("ou").send_keys("Seine-Maritime (76)")
     driver.find_element_by_id("quoiqui").send_keys(lastname)
     driver.find_element_by_xpath("//button[@title='Trouver']").click()
 
     # Give time for the page to load.
-    time.sleep(0.5)
+    time.sleep(1)
 
     # Store results in list
     all_names = []
@@ -72,10 +74,12 @@ def search_white_pages(lastname: str, driver: webdriver) -> list:
 
 def search_118712(lastname: str, driver: webdriver) -> list:
     driver.get("https://www.118712.fr/")
-    time.sleep(0.5)
+    time.sleep(1)
     driver.find_element_by_id("didomi-notice-agree-button").click()
+    time.sleep(1)
     driver.find_element_by_id("search_input_mono").send_keys(f"{lastname}, Seine-Maritime (76)")
     driver.find_element_by_id("search_validation_normal").click()
+    time.sleep(1)
 
     while True:
         try: 
