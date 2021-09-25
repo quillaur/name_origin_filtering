@@ -5,6 +5,7 @@ from selenium.webdriver.firefox.options import Options
 import time
 import pandas as pd
 import geckodriver_autoinstaller
+from unidecode import unidecode
 
 from selenium_search import search_white_pages, search_118712
 
@@ -33,6 +34,10 @@ def create_id_from_name_address(fullname: str, address: str) -> str:
     Returns:
         str: The unique id.
     """
+    # Remove accents
+    fullname = unidecode(fullname)
+    address = unidecode(address)
+
     if "," in address:
         address = address.split(",")
         zip_city = address[-1].strip()
@@ -49,15 +54,19 @@ if __name__ == '__main__':
 
     # The form in which to input the lastname to search for.
     with st.sidebar.form("Form"):
-        lastname = st.text_input('Entrez un nom de famille').lower()
+        lastname = st.text_input('Entrez un nom de famille')
+        address = st.text_input('Entrez un département, une ville ou une adresse')
         submitted = st.form_submit_button("Ok")
 
 
-    st.write("Cette application permet de faire une recherche d'un nom de famille sur 118712 et les pages blanches pour un département donnée.")
+    # st.write("Cette application permet de faire une recherche d'un nom de famille sur 118712 et les pages blanches pour un département donnée.")
     
     if submitted:
         # Initiat the search and run a spinner while the search happens.
         with st.spinner(text=f"Search for the lastname '{lastname}' in progress..."):
+            lastname = lastname.lower()
+            address = address.lower()
+
             # Set driver
             geckodriver_autoinstaller.install()
             fp = webdriver.FirefoxProfile()
@@ -68,11 +77,11 @@ if __name__ == '__main__':
             driver = webdriver.Firefox(firefox_profile=fp, options=options)
 
             # Search the white pages website
-            wp_names = search_white_pages(lastname, driver)
+            wp_names = search_white_pages(lastname, address, driver)
             # print(len(wp_names))
 
             # Search the 118712 website
-            other_names = search_118712(lastname, driver)
+            other_names = search_118712(lastname, address, driver)
             # print(len(other_names))
 
             # Store all data in a dict
