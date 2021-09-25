@@ -5,6 +5,7 @@ from selenium.webdriver.firefox.options import Options
 import time
 import pandas as pd
 import geckodriver_autoinstaller
+from unidecode import unidecode
 
 from selenium_search import search_white_pages, search_118712
 
@@ -33,6 +34,10 @@ def create_id_from_name_address(fullname: str, address: str) -> str:
     Returns:
         str: The unique id.
     """
+    # Remove accents
+    fullname = unidecode(fullname)
+    address = unidecode(address)
+    
     if "," in address:
         address = address.split(",")
         zip_city = address[-1].strip()
