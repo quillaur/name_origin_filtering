@@ -59,7 +59,11 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
                 # Go to the next element
                 continue
 
-            if lastname in fullname.lower():
+            # In the case where only the address is given, we want all names returned.
+            if not lastname:
+                all_names.append((fullname, adress_elem.text.split("\n")[0], name_elem.get_attribute("href")))
+
+            elif lastname in fullname.lower():
                 # Store match in a tuple: (full name, address, URL) and append to the final resulting list
                 all_names.append((fullname, adress_elem.text.split("\n")[0], name_elem.get_attribute("href")))
 
@@ -97,7 +101,10 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
 
         adress_elem = indi.find_element_by_xpath(".//div[@class='address']")
 
-        if lastname in fullname.lower():
+        # In the case where only the address is given, we want all names returned.
+        if not lastname:
+            all_names.append((fullname, adress_elem.text, name_elem.get_attribute("href")))
+        elif lastname in fullname.lower():
             all_names.append((fullname, adress_elem.text, name_elem.get_attribute("href")))
 
     return all_names
