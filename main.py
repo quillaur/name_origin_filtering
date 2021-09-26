@@ -85,7 +85,7 @@ def create_forbears_url(lastname: str, headers: dict) -> str:
 
 if __name__ == '__main__':
     # Use the whole size of the page
-    st.set_page_config(page_title="Lastname search", layout="wide")
+    st.set_page_config(page_title="Annuaires", layout="wide")
 
     # The form in which to input the lastname to search for.
     with st.sidebar.form("Form"):
@@ -101,7 +101,7 @@ if __name__ == '__main__':
         start = time.time()
 
         # Initiat the search and run a spinner while the search happens.
-        with st.spinner(text=f"Recherche du nom de famille '{lastname}' en cours..."):
+        with st.spinner(text=f"Recherche de {lastname}, {address} en cours..."):
             # Make everything lower for easier search
             lastname = lastname.lower()
             address = address.lower()
