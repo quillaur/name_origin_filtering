@@ -6,6 +6,7 @@ import time
 import pandas as pd
 import geckodriver_autoinstaller
 from unidecode import unidecode
+import requests
 
 from selenium_search import search_white_pages, search_118712
 
@@ -21,6 +22,7 @@ def make_clickable(url: str, text: str) -> str:
         str: The clickable hyperlink in html format.
     """
     return f'<a target="_blank" href="{url}">{text}</a>'
+
 
 def create_id_from_name_address(fullname: str, address: str) -> str:
     """Attempt to create a unique ID to identify an individual given its name and address.
@@ -48,6 +50,39 @@ def create_id_from_name_address(fullname: str, address: str) -> str:
         return f"{fullname.strip()} {address}"
 
 
+def this_forbears_url_exists(url: str, headers: dict) -> bool:
+    """This function checks that the created forbears url does not redirect us to the homepage.
+
+    Args:
+        url (str): The URL to check. 
+        headers (headers): The headers to send with the URL so the HTTP request is constructed by the browser and not python.
+
+    Returns:
+        bool: True if the page returned by the request is not the homepage of forbears, else False.
+    """
+    r = requests.get(url, headers=headers)
+
+    return r.url != "https://forebears.io/"
+
+
+def create_forbears_url(lastname: str, headers: dict) -> str:
+    """Create a URL to get the lastname page on forbears.io.
+
+    Args:
+        lastname (str): The lastname to construct the URL with.
+        headers (headers): The headers to send with the URL so the HTTP request is constructed by the browser and not python.
+
+    Returns:
+        str: The forbears URL.
+    """
+    url = f"https://forebears.io/fr/surnames/{lastname}"
+
+    if this_forbears_url_exists(url, headers):
+        return make_clickable(url, "Yes")
+    else:
+        return "No"
+
+
 if __name__ == '__main__':
     # Use the whole size of the page
     st.set_page_config(page_title="Lastname search", layout="wide")
@@ -62,10 +97,18 @@ if __name__ == '__main__':
     # st.write("Cette application permet de faire une recherche d'un nom de famille sur 118712 et les pages blanches pour un département donnée.")
     
     if submitted:
+        # Keep track of time
+        start = time.time()
+
         # Initiat the search and run a spinner while the search happens.
-        with st.spinner(text=f"Search for the lastname '{lastname}' in progress..."):
+        with st.spinner(text=f"Recherche du nom de famille '{lastname}' en cours..."):
+            # Make everything lower for easier search
             lastname = lastname.lower()
             address = address.lower()
+
+            # Define a header for url existance verification
+            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36"}
+
 
             # Set driver
             geckodriver_autoinstaller.install()
@@ -96,7 +139,8 @@ if __name__ == '__main__':
                     "Name": info[0],
                     "Pages Blanches": make_clickable(info[2], "Yes"),
                     "118712": "No",
-                    "Forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_fullname.split()[0]}", "Yes")
+                    # "Forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_fullname.split()[0]}", "Yes")
+                    "Forbears": create_forbears_url(lower_fullname.split()[0], headers)
                 }
 
             for info in other_names:
@@ -113,7 +157,8 @@ if __name__ == '__main__':
                     "Name": info[0],
                     "Pages Blanches": "No",
                     "118712": make_clickable(info[2], "Yes"),
-                    "Forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_fullname.split()[0]}", "Yes")
+                    # "Forbears": make_clickable(f"https://forebears.io/fr/surnames/{lower_fullname.split()[0]}", "Yes")
+                    "Forbears": create_forbears_url(lower_fullname.split()[0], headers)
                 }      
 
             # We don't need the selenium driver anymore
@@ -132,4 +177,6 @@ if __name__ == '__main__':
             # Show the results
             st.write(df.to_html(escape = False), unsafe_allow_html = True)
 
-        
+        end = time.time()
+        timedelta = round(end-start, 2)
+        st.sidebar.write(f"La recherche a prit {timedelta} secondes.")
