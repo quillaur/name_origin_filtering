@@ -42,6 +42,11 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
 
     # Search as long as possible
     while True:
+
+        # If one element is stale, restart from the while loop.
+        # This bool keeps track of stale element.
+        stale = False
+
         # For all elem of the list of search result on this page
         for indi in driver.find_elements_by_xpath("//li"):
             # Try to find a name (in a 'a' tag)
@@ -50,11 +55,16 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
             except exceptions.NoSuchElementException:
                 # Go to the next element
                 continue
+            except exceptions.StaleElementReferenceException as e:
+                print(f"I got the stale error: {e}")
+                driver.refresh()
+                stale = True
+                break
             
             fullname = name_elem.get_attribute("title")
 
             try:
-                adress_elem = indi.find_element_by_xpath(".//a[contains(@title, 'Voir le plan')]")
+                adress_elem = indi.find_element_by_xpath(".//a[contains(@title, 'Voir le plan') or contains(@title, 'Itinéraire vers')]")
             except exceptions.NoSuchElementException:
                 # Go to the next element
                 continue
@@ -67,12 +77,13 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
                 # Store match in a tuple: (full name, address, URL) and append to the final resulting list
                 all_names.append((fullname, adress_elem.text.split("\n")[0], name_elem.get_attribute("href")))
 
-        # If you can't find/click the 'next' button, then break the while loop/search.
-        try: 
-            driver.find_element_by_xpath("//*[@id='pagination-next']").click()
-            time.sleep(0.5)
-        except exceptions.NoSuchElementException as e:
-            break
+        if not stale:
+            # If you can't find/click the 'next' button, then break the while loop/search.
+            try: 
+                driver.find_element_by_xpath("//*[@id='pagination-next']").click()
+                time.sleep(0.5)
+            except exceptions.NoSuchElementException as e:
+                break
 
     return all_names
 
@@ -131,9 +142,9 @@ if __name__ == '__main__':
     print(wp_names)
 
     # Search the 118712 website
-    other_names = search_118712(lastname, address, driver)
-    print(len(other_names))
-    print(other_names)
+    # other_names = search_118712(lastname, address, driver)
+    # print(len(other_names))
+    # print(other_names)
 
     for n in wp_names:
         name = n[0].split()
