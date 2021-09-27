@@ -96,6 +96,7 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
 
 
 def search_118712(lastname: str, address: str, driver: webdriver) -> list:
+    print("searching 118712")
     driver.get("https://www.118712.fr/")
     time.sleep(1)
     driver.find_element_by_id("didomi-notice-agree-button").click()
@@ -105,6 +106,7 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
     time.sleep(1)
 
     while True:
+        print("Cliking more results")
         try: 
             driver.find_element_by_xpath("//*[@id='more']").click()
             time.sleep(1)
@@ -114,6 +116,7 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
             break
 
     all_names = []
+    print("Scrapping results")
     for indi in driver.find_elements_by_xpath("//article"):
         name_elem = indi.find_element_by_xpath(".//a[contains(@id, 'result')]")
         fullname = name_elem.get_attribute("title")
@@ -126,6 +129,8 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
         elif lastname in fullname.lower():
             all_names.append((fullname, adress_elem.text, name_elem.get_attribute("href")))
 
+    print(len(all_names))
+    print(all_names)
     return all_names
 
 
