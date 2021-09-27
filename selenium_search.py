@@ -21,6 +21,7 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
 
     Args:
         lastname (str): The lastname to search for. 
+        address (str): The address to search for.
         driver (webdriver): The selenium webdriver to use to automate the search.
 
     Returns:
@@ -97,7 +98,16 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
 
 
 def search_118712(lastname: str, address: str, driver: webdriver) -> list:
-    print("searching 118712")
+    """Search 118712 website for/with the given parameters.
+
+    Args:
+        lastname (str): The lastname to search for. 
+        address (str): The address to search for.
+        driver (webdriver): The selenium webdriver to use to automate the search.
+
+    Returns:
+        list: The list of names, addresses and URLs that matched the searched lastname.
+    """
     driver.get("https://www.118712.fr/")
     time.sleep(1)
     driver.find_element_by_id("didomi-notice-agree-button").click()
@@ -108,14 +118,9 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
 
     # How many results available ?
     count_results = driver.find_element_by_xpath("//div[contains(@class, 'count-result')]").text
-    print(count_results)
     count_results = int(count_results.split()[0])
-    print(count_results)
 
     for i in range(math.floor(count_results/20)):
-        print(i)
-    # while True:
-        print("Cliking more results")
         try: 
             driver.find_element_by_xpath("//*[@id='more']").click()
             time.sleep(1)
@@ -125,7 +130,6 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
             break
 
     all_names = []
-    print("Scrapping results")
     for indi in driver.find_elements_by_xpath("//article"):
         name_elem = indi.find_element_by_xpath(".//a[contains(@id, 'result')]")
         fullname = name_elem.get_attribute("title")
@@ -138,8 +142,6 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
         elif lastname in fullname.lower():
             all_names.append((fullname, adress_elem.text, name_elem.get_attribute("href")))
 
-    print(len(all_names))
-    print(all_names)
     return all_names
 
 
