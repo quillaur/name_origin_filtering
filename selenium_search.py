@@ -68,6 +68,11 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
             except exceptions.NoSuchElementException:
                 # Go to the next element
                 continue
+            except exceptions.StaleElementReferenceException as e:
+                print(f"I got the stale error: {e}")
+                driver.refresh()
+                stale = True
+                break
 
             # In the case where only the address is given, we want all names returned.
             if not lastname:
@@ -137,26 +142,26 @@ if __name__ == '__main__':
     address = "Seine-Maritime (76)"
     
     # Search the white pages website
-    wp_names = search_white_pages(lastname, address, driver)
-    print(len(wp_names))
-    print(wp_names)
+    # wp_names = search_white_pages(lastname, address, driver)
+    # print(len(wp_names))
+    # print(wp_names)
 
     # Search the 118712 website
-    # other_names = search_118712(lastname, address, driver)
-    # print(len(other_names))
-    # print(other_names)
+    other_names = search_118712(lastname, address, driver)
+    print(len(other_names))
+    print(other_names)
 
-    for n in wp_names:
-        name = n[0].split()
-        l = name[0]
-        f = " ".join(name[1:])
-        address = n[1].split(",")
-        zip_city = address[-1].strip()
-        street = address[-2].strip()
-        street = street.split()[-1]
-        print(f"lastname: {l}, firstname: {f}, street: {street}, zip_city: {zip_city}")
-        id_address = f"{n[0]} {street} {zip_city}"
-        print(id_address)
+    # for n in wp_names:
+    #     name = n[0].split()
+    #     l = name[0]
+    #     f = " ".join(name[1:])
+    #     address = n[1].split(",")
+    #     zip_city = address[-1].strip()
+    #     street = address[-2].strip()
+    #     street = street.split()[-1]
+    #     print(f"lastname: {l}, firstname: {f}, street: {street}, zip_city: {zip_city}")
+    #     id_address = f"{n[0]} {street} {zip_city}"
+    #     print(id_address)
 
 
 
