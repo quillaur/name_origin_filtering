@@ -12,6 +12,7 @@ from selenium import webdriver
 from selenium.common import exceptions
 import time
 from docopt import docopt
+import math
 
 
 
@@ -105,7 +106,15 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
     driver.find_element_by_id("search_validation_normal").click()
     time.sleep(1)
 
-    while True:
+    # How many results available ?
+    count_results = driver.find_element_by_xpath("//div[contains(@class, 'count-result')]").text
+    print(count_results)
+    count_results = int(count_results.split()[0])
+    print(count_results)
+
+    for i in range(math.floor(count_results/20)):
+        print(i)
+    # while True:
         print("Cliking more results")
         try: 
             driver.find_element_by_xpath("//*[@id='more']").click()
