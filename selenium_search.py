@@ -59,6 +59,7 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
                 print(f"I got the stale error: {e}")
                 driver.refresh()
                 stale = True
+                time.sleep(1)
                 break
             
             fullname = name_elem.get_attribute("title")
@@ -72,6 +73,7 @@ def search_white_pages(lastname: str, address: str, driver: webdriver) -> list:
                 print(f"I got the stale error: {e}")
                 driver.refresh()
                 stale = True
+                time.sleep(1)
                 break
 
             # In the case where only the address is given, we want all names returned.
@@ -105,6 +107,7 @@ def search_118712(lastname: str, address: str, driver: webdriver) -> list:
     while True:
         try: 
             driver.find_element_by_xpath("//*[@id='more']").click()
+            time.sleep(1)
         except exceptions.NoSuchElementException as e:
             break
         except exceptions.ElementNotInteractableException as e:
@@ -139,7 +142,8 @@ if __name__ == '__main__':
     fp = webdriver.FirefoxProfile()
     driver = webdriver.Firefox(firefox_profile=fp)
 
-    address = "Seine-Maritime (76)"
+    # address = "Seine-Maritime (76)"
+    address = "seine-maritime"
     
     # Search the white pages website
     # wp_names = search_white_pages(lastname, address, driver)
