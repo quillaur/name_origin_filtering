@@ -101,7 +101,7 @@ if __name__ == '__main__':
         start = time.time()
 
         # Initiat the search and run a spinner while the search happens.
-        with st.spinner(text=f"Recherche de {lastname}, {address} en cours..."):
+        with st.spinner(text=f"Recherche de {lastname}: {address} en cours..."):
             # Make everything lower for easier search
             lastname = lastname.lower()
             address = address.lower()
